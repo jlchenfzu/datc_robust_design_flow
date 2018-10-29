@@ -35,7 +35,7 @@ BLOCK_PREFIX = 'block_'
 TIE_HI = 'vcc'
 TIE_LO = 'vss'
 LATCH  = 'ms00f80'
-OUT_PIN_NAME = ('o', 'q')
+OUT_PIN_NAME = ('Q', 'Y')
 
 
 class Vertex:

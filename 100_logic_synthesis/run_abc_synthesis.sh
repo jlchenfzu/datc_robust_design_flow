@@ -18,7 +18,7 @@ map=$6
 timing=$7
 max_fanout=$8
 
-bench_dir="../benchmarks"
+bench_dir="../benchmarks/utils/tau_benchmarks"
 abc_bin="../bin/abc"
 abc_rc="../bin/abc.rc"
 
@@ -53,12 +53,12 @@ then
     if [ -f $timing_assertions ]
     then
         echo timing assertions : $timing_assertions
-        makeblif="python3 ../utils/100_verilog_to_blif.py -i $bench_verilog -t $timing_assertions -o $bench_blif"
+        makeblif="python3 ../utils/100_verilog_to_blif_asap7nm.py -i $bench_verilog -t $timing_assertions -o $bench_blif"
     else
         echo unable to locate timing assertions file : $timing_assertions
     fi
 else
-    makeblif="python3 ../utils/100_verilog_to_blif.py -i $bench_verilog -o $bench_blif"
+    makeblif="python3 ../utils/100_verilog_to_blif_asap7nm.py -i $bench_verilog -o $bench_blif"
 fi
 
 echo $makeblif; $makeblif

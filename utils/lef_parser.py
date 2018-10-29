@@ -114,8 +114,8 @@ class Lef(object):
         obses = list()  # obses will be a list of (llx, lly, w, h)
 
         while True:
-            line = next(lines_iter)
-            tokens = line.split()
+            tokens = next(lines_iter).split()
+
             if tokens[0] == 'END':
                 try:
                     if tokens[1] == name:
@@ -173,16 +173,23 @@ class Lef(object):
                 pin_list.append( LefPin(pin_name, direction, ll, ur) )
 
             elif tokens[0] == 'OBS':
-                # OBS extraction
-                tokens = next(lines_iter).split()
-
                 while True:
                     tokens = next(lines_iter).split()
-                    if len(tokens) < 6:
+                    if tokens[0] == 'END':
                         break
 
-                    # obses: list of (llx, lly, urx, ury)
-                    obses.append( tuple([float(t) for t in tokens[1:-1]]) )
+#                # OBS extraction
+#                tokens = next(lines_iter).split()
+#                assert tokens[0] == 'LAYER' \
+#                       and tokens[1] == self.m1_layer_name
+#
+#                while True:
+#                    tokens = next(lines_iter).split()
+#                    if len(tokens) < 6:
+#                        break
+#
+#                    # obses: list of (llx, lly, urx, ury)
+#                    obses.append( tuple([float(t) for t in tokens[1:-1]]) )
 
         if len(obses) < 2:
             return LefMacro(name, width, height, macro_class, pin_list)

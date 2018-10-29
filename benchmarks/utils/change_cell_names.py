@@ -2,7 +2,7 @@
     File name      : change_cell_names.py
     Author         : Jinwook Jung
     Created on     : Sun 06 Aug 2017 10:19:49 PM KST
-    Last modified  : 2017-08-06 23:54:14
+    Last modified  : 2018-08-01 14:22:40
     Description    : Change cell names of ICCAD'14 TDP contest Verilogs.
 '''
 

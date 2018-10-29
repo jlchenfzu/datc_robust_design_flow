@@ -249,11 +249,11 @@ if __name__ == "__main__":
     print("Remap the benchmarks to the library of OpenDesign Flow Database.", flush=True)
     remap_benchmarks(tau17_benchmarks)
 
-    print("Remove dangling wires.", flush=True)
-    remove_dangling_wires(tau17_benchmarks)
-
-    print("Set up the benchmark directories.", flush=True)
-    setup_benchmark_directories(tau17_benchmarks, opt.remove_unnecessary_files)
+#    print("Remove dangling wires.", flush=True)
+#    remove_dangling_wires(tau17_benchmarks)
+#
+#    print("Set up the benchmark directories.", flush=True)
+#    setup_benchmark_directories(tau17_benchmarks, opt.remove_unnecessary_files)
 
     print("Completed!", flush=True)
 

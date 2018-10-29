@@ -107,10 +107,10 @@ def parse_bookshelf_scl(scl):
                     height = int(tokens[2])
 
                 elif tokens[0] == 'Sitewidth':
-                    site_width = int(tokens[2])
+                    site_width = float(tokens[2])
 
                 elif tokens[0] == 'Sitespacing':
-                    site_spacing = int(tokens[2])
+                    site_spacing = float(tokens[2])
 
                 elif tokens[0] == 'SubrowOrigin':
                     subrow_origin = int(tokens[2])

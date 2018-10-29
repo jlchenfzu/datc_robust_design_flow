@@ -7,7 +7,7 @@ local $| = 1;
 # Modified by Jinwook Jung (jinwookjung@kaist.ac.kr) on July 2016
 # usage: gen_routing_benchmark.pl <nodes> <solution.pl> <net> <scl> <outputfile> <tile_size> <adjustment_factor%> <safe_guard_factor%> <mode=[2|3]> <num_layers>
 $DEFAULT_TILE_SIZE = $ARGV[5];
-$DEFAULT_ROW_HEIGHT = 9; 
+$DEFAULT_ROW_HEIGHT = 8; 
 $DEFAULT_PIN_METAL_LAYTER = 1;
 $DEFAULT_WIRE_MINIMUM_WIDTH = 1;
 $FANOUT_CLIP_THRESHOLD = 1000;

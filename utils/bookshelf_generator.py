@@ -14,8 +14,8 @@ import sys
 import verilog_parser
 import lef_parser
 
-M1_LAYER_NAME = 'metal1'
-M2_LAYER_NAME = 'metal2'
+M1_LAYER_NAME = 'M1'
+M2_LAYER_NAME = 'M2'
 
 
 class Bookshelf:
