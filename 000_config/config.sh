@@ -21,7 +21,7 @@ placers=(
 target_density=0.8
 
 # Gate Sizing
-run_gs=true
+run_gs=false
 sizers=(
     "USizer2013"
 )

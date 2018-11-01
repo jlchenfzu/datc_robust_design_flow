@@ -2,41 +2,47 @@
     File name      : latch_mapper.py
     Author         : Jinwook Jung (jinwookjungs@gmail.com)
     Created on     : Mon 07 Aug 2017 02:41:23 PM KST
-    Last modified  : 2017-08-13 12:11:25
-    Description    : Provides the LatchMapper class to generate a netlist with 
-                     all latches mapped. Given the verilog output from the 
-                     ABC, LatchMapper generates a netlist in which all latches 
+    Last modified  : 2018-11-01 16:31:55
+    Description    : Provides the LatchMapper class to generate a netlist with
+                     all latches mapped. Given the verilog output from the
+                     ABC, LatchMapper generates a netlist in which all latches
                      are mapped to the specified library cell.
 '''
 from time import gmtime, strftime
 from textwrap import wrap
 import sys, math, argparse
 
-TIE_HI = 'vcc'
-TIE_LO = 'vss'
-
 class Latch(object):
     """ Contain information about a latch cell. """
-    def __init__(self, instance_id, d, q, clk, gtype):
+    def __init__(self, instance_id, d_pin, d_net, q_pin, q_net, ck_pin, ck_net, gtype):
         self.instance_id = instance_id
-        self.d = d
-        self.q = q
-        self.clk = clk
+        self.d_pin, self.d_net = d_pin, d_net
+        self.q_pin, self.q_net = q_pin, q_net
+        self.ck_pin, self.ck_net = ck_pin, ck_net
         self.gtype = gtype
 
     def print_latch(self, digit):
-        return "%s l%0*d ( .d(%s), .o(%s), .ck(%s) );" % \
-                (self.gtype, digit, self.instance_id, 
-                 self.d, self.q, self.clk)
+        return "%s l%0*d ( .%s(%s), .%s(%s), .%s(%s) );" % \
+                (self.gtype, digit, self.instance_id,
+                 self.d_pin, self.d_net, self.q_pin, self.q_net,
+                 self.ck_pin, self.ck_net)
 
 
 class LatchMapper(object):
     """ Latch-mapped netlist generator. """
-    def __init__(self, clock_port, latch_cell):
+    def __init__(self, clock_port,
+                 latch_cell, latch_in="d", latch_out="o", latch_ck="ck",
+                 tie_hi='vcc', tie_hi_out='o',
+                 tie_lo='vss', tie_lo_out='o'):
         self.name, self.input_file = None, None
 
         self.clock_port = clock_port
-        self.latch_cell = latch_cell 
+        self.latch_cell = latch_cell
+        self.latch_in, self.latch_out, self.latch_ck = latch_in, latch_out, latch_ck
+        self.tie_hi = tie_hi
+        self.tie_lo = tie_lo
+        self.tie_hi_out, self.tie_lo_out = tie_hi_out, tie_lo_out
+
         self.inputs = list()
         self.outputs = list()
         self.wires = list()
@@ -46,7 +52,7 @@ class LatchMapper(object):
 
     def read_verilog(self, filename):
         """ Read a Verilog file that is written by write_verilog of ABC. """
-        self.input_file = filename 
+        self.input_file = filename
 
         with open(filename, 'r') as f:
             lines = [l for l in (line.strip() for line in f) if l]
@@ -70,7 +76,7 @@ class LatchMapper(object):
                 self.name = tokens[1]
                 while not next(lines_iter).endswith(');'):
                     continue    # Skip lines
- 
+
             elif tokens[0] == 'input':
                 [inputs.append(t.rstrip(',;')) for t in tokens[1:]]
                 if line.endswith(';'):
@@ -112,8 +118,10 @@ class LatchMapper(object):
                         break
 
                     instance_id = latch_count
-                    d, q = tokens[2].rstrip(';'), tokens[0]
-                    latch = Latch(instance_id, d, q, self.clock_port, 
+                    d_net, q_net = tokens[2].rstrip(';'), tokens[0]
+                    latch = Latch(instance_id, self.latch_in, d_net,
+                                  self.latch_out, q_net,
+                                  self.latch_ck, self.clock_port,
                                   self.latch_cell)
                     self.latches.append(latch)
                     latch_count += 1
@@ -128,9 +136,9 @@ class LatchMapper(object):
 
                 gate_type, instance = line[:i1].split()
                 if gate_type == 'one':
-                    gate_type = 'vcc'
+                    gate_type = self.tie_hi
                 elif gate_type == 'zero':
-                    gate_type = 'vss'
+                    gate_type = self.tie_lo
 
                 instantiation = "%s %s ( %s );" \
                                 % (gate_type, instance, line[i1+1:i2])
@@ -146,7 +154,7 @@ class LatchMapper(object):
         f = open(filename, 'w')
         f.write("// Latch-mapped netlist written by map_latches.py, %s\n"
                      "// Written ISPD/ICCAD/TAU contest Verilog format. \n" % \
-                            (strftime("%Y-%m-%d %H:%M:%S", gmtime())))  
+                            (strftime("%Y-%m-%d %H:%M:%S", gmtime())))
         f.write("//    Input file:  " + self.input_file + "\n")
         f.write("//    Latch cell:  " + self.latch_cell + "\n")
         f.write("//    Clock port:  " + self.clock_port + "\n")
@@ -157,7 +165,7 @@ class LatchMapper(object):
         f.write(self.clock_port + ',\n')
         f.write(',\n'.join(self.inputs) + ',\n')
         f.write(',\n'.join(self.outputs) + '\n);\n')
-        
+
         # PIs and POs
         f.write('\n// Start PIs\n')
         f.write('input %s;\n' % (self.clock_port))
@@ -199,9 +207,9 @@ class LatchMapper(object):
 
             inst_name = ("t%0*d" % (digit, i))
             if value == "1'b0":
-                f.write("%-7s %s ( .o(%s) );\n" % (TIE_HI, inst_name, identifier))
+                f.write("%-7s %s ( .%s(%s) );\n" % (self.tie_hi, inst_name, self.tie_hi_out, identifier))
             else:
-                f.write("%-7s %s ( .o(%s) );\n" % (TIE_LO, inst_name, identifier))
+                f.write("%-7s %s ( .%s(%s) );\n" % (self.tie_lo, inst_name, self.tie_lo_out, identifier))
 
         f.write('\nendmodule\n')
         f.close()

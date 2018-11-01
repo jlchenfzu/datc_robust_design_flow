@@ -20,13 +20,20 @@ def parse_cl():
     # Add arguments
     parser.add_argument('-i', dest='src_v', required=True)
     parser.add_argument('--latch', dest='latch_cell', required=True)
+    parser.add_argument('--latch_in', dest='latch_in', required=True)
+    parser.add_argument('--latch_out', dest='latch_out', required=True)
+    parser.add_argument('--latch_ck', dest='latch_ck', required=True)
+    parser.add_argument('--tie_hi', dest='tie_hi', default="vcc")
+    parser.add_argument('--tie_hi_out', dest='tie_hi_out', required=True)
+    parser.add_argument('--tie_lo', dest='tie_lo', default="vss")
+    parser.add_argument('--tie_lo_out', dest='tie_lo_out', required=True)
     parser.add_argument('--clock', dest='clock_port')
     parser.add_argument('--sdc', dest='input_sdc')
     parser.add_argument('-o', dest='dest_v', default='out_lmapped.v')
     opt = parser.parse_args()
 
     if opt.input_sdc is None and opt.clock_port is None:
-        parser.error("At least one of --sdc and -c required.")
+        parser.error("Either --sdc or --clock is required.")
         raise SystemExit(-1)
 
     elif opt.input_sdc is not None:
@@ -55,15 +62,22 @@ if __name__ == '__main__':
     opt = parse_cl()
     src_v = opt.src_v
     latch_cell = opt.latch_cell
+    latch_in, latch_out, latch_ck = opt.latch_in, opt.latch_out, opt.latch_ck
+    tie_hi, tie_lo = opt.tie_hi, opt.tie_lo
+    tie_hi_out, tie_lo_out = opt.tie_hi_out, opt.tie_lo_out
     clock_port = opt.clock_port
     dest_v = opt.dest_v
 
     print ("Input file:  " + src_v)
     print ("Latch cell:  " + latch_cell)
+    print ("Latch pins:  {}/{}/{}".format(latch_in, latch_out, latch_ck))
+    print ("Tie cells:   {}/{}".format(tie_hi, tie_lo))
     print ("Clock port:  " + clock_port)
     print ("Output file: " + dest_v)
     sys.stdout.flush()
 
-    mapper = LatchMapper(clock_port, latch_cell)
+    mapper = LatchMapper(clock_port, latch_cell, latch_in, latch_out, latch_ck,
+                         tie_hi, tie_hi_out, tie_lo, tie_lo_out)
     mapper.read_verilog(src_v)
     mapper.map_latches(dest_v)
+

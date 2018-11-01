@@ -6,6 +6,9 @@ source ../000_config/setup.sh $1
 
 for bench in "${these_benches[@]}"
 do
+    parms=(${bench_set[$benchkey]})
+    clock_name=${parms[1]}
+
 	for scenario in "${these_scenarios[@]}"
 	do
         synth_result="${logic_synth_dir}/${bench}.${scenario}/${bench}.v"

@@ -14,10 +14,6 @@ import sys
 import verilog_parser
 import lef_parser
 
-M1_LAYER_NAME = 'M1'
-M2_LAYER_NAME = 'M2'
-
-
 class Bookshelf:
     def __init__(self, src_v, src_lef, clock_port, util):
         self.src_v = src_v
@@ -35,7 +31,7 @@ class Bookshelf:
         self.die_width = 0.0
         self.die_height = 0.0
 
-    def initialize(self):
+    def initialize(self, m1_layer="metal1", m2_layer="metal2"):
         """ Initialize data structure. """
         print ("Parsing verilog: %s" % (self.src_v))
         self.verilog = verilog_parser.Module()
@@ -45,15 +41,15 @@ class Bookshelf:
 
         print ("Parsing LEF: %s" % (self.src_lef))
         self.lef = lef_parser.Lef()
-        self.lef.set_m1_layer_name(M1_LAYER_NAME)
-        self.lef.set_m2_layer_name(M2_LAYER_NAME)
+        self.lef.set_m1_layer_name(m1_layer)
+        self.lef.set_m2_layer_name(m2_layer)
         self.lef.read_lef(self.src_lef)
         self.lef.print_stats()
 
         self.site_width     = self.lef.site_width
         self.site_height    = self.lef.site_height
-        self.width_divider  = self.lef.metal_layer_dict[M2_LAYER_NAME]
-        self.height_divider = self.lef.metal_layer_dict[M1_LAYER_NAME]
+        self.width_divider  = self.lef.metal_layer_dict[m2_layer]
+        self.height_divider = self.lef.metal_layer_dict[m1_layer]
 
     def write_bookshelf_nodes(self, filename='out'):
         """ Write down .nodes file. """

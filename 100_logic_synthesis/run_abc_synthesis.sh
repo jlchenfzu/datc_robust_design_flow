@@ -3,9 +3,9 @@
 if test "$#" -ne 8; then
     echo "$0: error - wrong number of arguments : $# instead of 8"
     echo "usage: $0 <benchmark name> <latch name> <clock signal> <max_fanout>\ "
-    echo "                              <scenario> <abc script name> <abc map command> \ "
-    echo "                              <true/false for using timing assrtions> \ "
-    echo "                              <max_fanout>"
+    echo "                           <scenario> <abc script name> <abc map command> \ "
+    echo "                           <true/false for using timing assrtions> \ "
+    echo "                           <max_fanout>"
     exit
 fi
 
@@ -18,7 +18,6 @@ map=$6
 timing=$7
 max_fanout=$8
 
-bench_dir="../benchmarks/utils/tau_benchmarks"
 abc_bin="../bin/abc"
 abc_rc="../bin/abc.rc"
 
@@ -30,7 +29,6 @@ abc_verilog=./rundata/${bench}_${runid}.v
 final="./synthesis/${bench}.${runid}"
 
 final_verilog=${final}/${bench}.v
-
 
 
 #-----------------------------------------------------------------------------
@@ -46,20 +44,24 @@ echo ""
 echo "1. Verilog to blif conversion"
 echo "------------------------------------------------------------------------------"
 
-if [ "$timing" == "true" ] 
+blif_converter=""
+
+if [ "$timing" == "true" ]
 then
     gen_assertions=1
     timing_assertions=${bench_dir}/${bench}/${bench}.timing
     if [ -f $timing_assertions ]
     then
         echo timing assertions : $timing_assertions
-        makeblif="python3 ../utils/100_verilog_to_blif_asap7nm.py -i $bench_verilog -t $timing_assertions -o $bench_blif"
+        makeblif="python3 ../utils/100_verilog_to_blif.py -i $bench_verilog -t $timing_assertions -o $bench_blif"
     else
         echo unable to locate timing assertions file : $timing_assertions
     fi
 else
-    makeblif="python3 ../utils/100_verilog_to_blif_asap7nm.py -i $bench_verilog -o $bench_blif"
+    makeblif="python3 ../utils/100_verilog_to_blif.py -i $bench_verilog -o $bench_blif"
 fi
+
+makeblif="$makeblif --dff ${latch} --tie_hi ${tie_hi} --tie_lo ${tie_lo}"
 
 echo $makeblif; $makeblif
 cp $bench_blif $abc_input_blif
@@ -88,7 +90,7 @@ cleanup;
 echo -n "$map:$abc_script:"; print_stats;
 echo Buffering ... ;
 buffer -N $max_fanout -v;
-echo -n "buffer:$abc_script:"; 
+echo -n "buffer:$abc_script:";
 echo "print_stats"; print_stats;
 echo "print_latch"; print_latch;
 echo "print_gates"; print_gates;
@@ -104,7 +106,12 @@ write_verilog $abc_verilog
 echo ""
 echo "3. Latch mapping - $bench"
 echo "------------------------------------------------------------------------------"
-makeverilog="python3 ../utils/100_map_latches.py -i $abc_verilog --latch $latch --clock $clk_src"
+makeverilog="python3 ../utils/100_map_latches.py -i $abc_verilog"
+makeverilog="$makeverilog --latch ${dff[0]}"
+makeverilog="$makeverilog --latch_in ${dff[1]} --latch_out ${dff[2]} --latch_ck ${dff[3]}"
+makeverilog="$makeverilog --tie_hi ${tie_hi[0]} --tie_hi_out ${tie_hi[1]}"
+makeverilog="$makeverilog --tie_lo ${tie_lo[0]} --tie_lo_out ${tie_lo[1]}"
+makeverilog="$makeverilog --clock $clk_src"
 makeverilog="$makeverilog -o $final_verilog"
 echo $makeverilog; $makeverilog
 

@@ -26,14 +26,22 @@ def parse_cl():
     parser.add_argument(
             '-o', action="store", dest='dest_blif', default='out.blif')
     parser.add_argument(
+            '--dff', action='store', dest='dff', default='ms00f80')
+    parser.add_argument(
+            '--tie_hi', action='store', dest='tie_hi', default='vcc')
+    parser.add_argument(
+            '--tie_lo', action='store', dest='tie_lo', default='vss')
+    parser.add_argument(
             '-t', action="store", dest='src_t', required=False)
 
     opt = parser.parse_args()
-    return opt.src_v, opt.dest_blif, opt.src_t
+    return opt
 
 
 if __name__ == '__main__':
-    src, dest, asserts = parse_cl()
+    opt = parse_cl()
+    src, dest, asserts = opt.src_v, opt.dest_blif, opt.src_t
+    dff, tie_hi, tie_lo = opt.dff, opt.tie_hi, opt.tie_lo
 
     print ("Provided design:  " + src)
     if asserts is not None:
@@ -46,5 +54,10 @@ if __name__ == '__main__':
     blif_converter.read_verilog(src)
     if asserts is not None:
         blif_converter.read_timing(asserts)
+
+    blif_converter.set_dff(dff)
+    blif_converter.set_tie_hi(tie_hi)
+    blif_converter.set_tie_lo(tie_lo)
+
     blif_converter.write_blif(dest, asserts is not None)
 

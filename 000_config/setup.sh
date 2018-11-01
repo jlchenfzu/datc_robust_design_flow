@@ -7,13 +7,9 @@ echo $0: using $1 benchmark suite
 case $suite in
     my_suite) source ../000_config/config.sh
     ;;
-    simple)   source ../000_config/config_simple.sh
+    asap_7nm) source ../000_config/config_asap7nm.sh
     ;;
-    test)     source ../000_config/config_test.sh
-    ;;
-    all)      source ../000_config/config_all.sh
-    ;;
-    *)        source ../000_config/config_simple.sh
+    *)        source ../000_config/config.sh
     ;;
 esac
 
@@ -24,8 +20,6 @@ declare -a these_timers=("${timers[@]}")
 declare -a these_sizers=("${sizers[@]}")
 declare -a these_grouters=("${global_routers[@]}")
 declare -a these_drouters=("${detail_routers[@]}")
-
-clock_name='clk'
 
 # Create directories
 mkdir -p ../100_logic_synthesis/reports 
@@ -47,7 +41,6 @@ mkdir -p ../510_global_route/global_route
 mkdir -p ../600_dr_benchmark_checker/lefdef
 mkdir -p ../610_detail_route/detail_route
 
-bench_dir=`cd ../benchmarks; pwd -P`
 logic_synth_dir=`cd ../100_logic_synthesis/synthesis; pwd -P`
 final_verilog_dir=`cd ../110_remove_dangling_nets/verilog; pwd -P`
 floorplan_dir=`cd ../200_floorplanning/bookshelf; pwd -P`
@@ -66,42 +59,7 @@ dr_lefdef_dir=`cd ../600_dr_benchmark_checker/lefdef; pwd -P`
 detail_route_dir=`cd ../610_detail_route/detail_route; pwd -P`
 
 # Available Benchmarks
-declare -A bench_set=(
-#   [<bench-key>] = '<map-to-latch clock-signal>
-    [ac97_ctrl]="ms00f20 clk"
-    [aes_core]="ms00f20 clk" 
-    [crc32d16N]="ms00f20 clk"     
-    [des_perf]="ms00f20 clk"
-    [leon2]="ms00f20 clk"
-    [leon3mp]="ms00f20 clk"
-    [mgc_edit_dist]="ms00f20 clk"
-    [mgc_matrix_mult]="ms00f20 clk"
-    [netcard]="ms00f20 clk"
-    [pci_bridge32]="ms00f20 clk"
-    [simple_release]="ms00f20 clk"
-    [systemcaes]="ms00f20 clk"
-    [systemcdes]="ms00f20 clk"
-    [tv80]="ms00f20 clk"
-    [usb_funct]="ms00f20 clk"
-    [vga_lcd]="ms00f20 clk"
-    [wb_dma]="ms00f20 clk"
-    [cordic2_ispd]="ms00f20 clk"
-    [cordic_ispd]="ms00f20 clk"
-    [des_perf_ispd]="ms00f20 clk"
-    [edit_dist2_ispd]="ms00f20 clk"
-    [edit_dist_ispd]="ms00f20 clk"
-    [fft_ispd]="ms00f20 clk" 
-    [matrix_mult_ispd]="ms00f20 clk"
-    [usb_phy_ispd]="ms00f20 clk"
-    [b19_iccad]="ms00f20 clk"
-    [leon2_iccad]="ms00f20 clk"
-    [leon3mp_iccad]="ms00f20 clk"
-    [mgc_edit_dist_iccad]="ms00f20 clk"
-    [mgc_matrix_mult_iccad]="ms00f20 clk"
-    [netcard_iccad]="ms00f20 clk"
-    [vga_lcd_iccad]="ms00f20 clk"
-    [simple]="ms00f20 clk"
-)
+source ../000_config/bench_setup.sh
 
 # Logic Synthesis Scenarios
 declare -A scenario_set=(

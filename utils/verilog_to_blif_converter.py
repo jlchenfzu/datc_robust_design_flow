@@ -2,7 +2,7 @@
     File name      : verilog_to_blif_converter.py
     Author         : Jinwook Jung (jinwookjungs@gmail.com)
     Created on     : Sat 05 Aug 2017 02:35:14 PM KST
-    Last modified  : 2017-08-07 15:48:54
+    Last modified  : 2018-11-01 15:20:26
     Description    : Provides BlifConverter class.
 '''
 
@@ -23,13 +23,26 @@ class BlifConverter(object):
         self._reqtime  = list()
         self._default_reqtime = None
 
+        self._dff    = ""
+        self._tie_hi = ""
+        self._tie_lo = ""
+
+    def set_dff(self, dff):
+        self._dff = dff
+
+    def set_tie_hi(self, tie_hi):
+        self._tie_hi = tie_hi
+
+    def set_tie_lo(self, tie_lo):
+        self._tie_lo = tie_lo
+
     def read_verilog(self, src):
         """ Reading the source verilog file. """
         lines = [x.rstrip() for x in open(src)]
 
         for line in lines:
             # if current line is blank or a comment:
-            if line == '' or line.startswith('//'): 
+            if line == '' or line.startswith('//'):
                 continue
 
             tokens = line.split()
@@ -119,26 +132,31 @@ class BlifConverter(object):
                 token = token.replace(c, ' ')
 
             token = token.strip().split()
-            pin, net = token[0], token[1]
+            try:
+                pin, net = token[0], token[1]
+            except IndexError:
+                print(token)
+                sys.exit(-1)
+
             return pin, net
 
         f.write("\n# Gates\n")
         for gate in gate_list:
-            ref_name = gate[0].upper()
+            ref_name = gate[0]
 
-            if ref_name == "MS00F80":
+            if ref_name == self._dff:
                 for pin in gate[1]:
                     pin_name, net_name = extract_pin_and_net(pin)
-                    if pin_name.upper() == 'O': o = net_name
+                    if pin_name.upper() in ('O', 'Q'): o = net_name
                     elif pin_name.upper() == 'D': d = net_name
 
                 f.write(".latch %s %s\n" % (d, o))
 
-            elif ref_name.startswith('VSS'):
+            elif ref_name == self._tie_lo:
                 pin_name, net_name = extract_pin_and_net(gate[1][0])
                 f.write(".gate _const0_ z=%s\n" % (net_name))
 
-            elif ref_name.startswith('VCC'):
+            elif ref_name == self._tie_hi:
                 pin_name, net_name = extract_pin_and_net(gate[1][0])
                 f.write(".gate _const1_ z=%s\n" % (net_name))
 
@@ -147,6 +165,18 @@ class BlifConverter(object):
                 # pins
                 for pin in gate[1]:
                     pin_name, net_name = extract_pin_and_net(pin)
-                    f.write("%s=%s " % (pin_name, net_name))  
+                    f.write("%s=%s " % (pin_name, net_name))
                 f.write("\n")
+
+    @property
+    def dff(self):
+        return self._dff
+
+    @property
+    def tie_hi(self):
+        return self._tie_hi
+
+    @property
+    def tie_lo(self):
+        return self._tie_lo
 

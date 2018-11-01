@@ -2,6 +2,9 @@ all: my_suite
 my_suite:
 	./run_suite my_suite
 
+asap_7nm:
+	./run_suite asap_7nm
+
 simple:
 	./run_suite simple
 

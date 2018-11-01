@@ -1,0 +1,90 @@
+#!/bin/bash
+# Setting Available Benchmarks
+if  [ "$is_asap7nm" == "true" ]
+then
+bench_dir=`cd ../benchmarks/asap7nm; pwd -P`
+m1_layer="M1"
+m2_layer="M2"
+dff=("DFFHQx4_ASAP7_75t_R" "D" "Q", "CK")
+tie_hi=("TIEHIx1_ASAP7_75t_R" "H") 
+tie_lo=("TIELOx1_ASAP7_75t_R" "L")
+declare -A bench_set=(
+#   [<bench-key>] = '<map-to-latch clock-signal>
+    [ac97_ctrl]="DFFHQx4_ASAP7_75t_R clk"
+    [aes_core]="DFFHQx4_ASAP7_75t_R clk" 
+    [crc32d16N]="DFFHQx4_ASAP7_75t_R clk"     
+    [des_perf]="DFFHQx4_ASAP7_75t_R clk"
+    [leon2]="DFFHQx4_ASAP7_75t_R clk"
+    [leon3mp]="DFFHQx4_ASAP7_75t_R clk"
+    [mgc_edit_dist]="DFFHQx4_ASAP7_75t_R clk"
+    [mgc_matrix_mult]="DFFHQx4_ASAP7_75t_R clk"
+    [netcard]="DFFHQx4_ASAP7_75t_R clk"
+    [pci_bridge32]="DFFHQx4_ASAP7_75t_R clk"
+    [simple_release]="DFFHQx4_ASAP7_75t_R clk"
+    [systemcaes]="DFFHQx4_ASAP7_75t_R clk"
+    [systemcdes]="DFFHQx4_ASAP7_75t_R clk"
+    [tv80]="DFFHQx4_ASAP7_75t_R clk"
+    [usb_funct]="DFFHQx4_ASAP7_75t_R clk"
+    [vga_lcd]="DFFHQx4_ASAP7_75t_R clk"
+    [wb_dma]="DFFHQx4_ASAP7_75t_R clk"
+    [cordic2_ispd]="DFFHQx4_ASAP7_75t_R clk"
+    [cordic_ispd]="DFFHQx4_ASAP7_75t_R clk"
+    [des_perf_ispd]="DFFHQx4_ASAP7_75t_R clk"
+    [edit_dist2_ispd]="DFFHQx4_ASAP7_75t_R clk"
+    [edit_dist_ispd]="DFFHQx4_ASAP7_75t_R clk"
+    [fft_ispd]="DFFHQx4_ASAP7_75t_R clk" 
+    [matrix_mult_ispd]="DFFHQx4_ASAP7_75t_R clk"
+    [usb_phy_ispd]="DFFHQx4_ASAP7_75t_R clk"
+    [b19_iccad]="DFFHQx4_ASAP7_75t_R clk"
+    [leon2_iccad]="DFFHQx4_ASAP7_75t_R clk"
+    [leon3mp_iccad]="DFFHQx4_ASAP7_75t_R clk"
+    [mgc_edit_dist_iccad]="DFFHQx4_ASAP7_75t_R clk"
+    [mgc_matrix_mult_iccad]="DFFHQx4_ASAP7_75t_R clk"
+    [netcard_iccad]="DFFHQx4_ASAP7_75t_R clk"
+    [vga_lcd_iccad]="DFFHQx4_ASAP7_75t_R clk"
+    [simple]="DFFHQx4_ASAP7_75t_R clk"
+)
+else
+bench_dir=`cd ../benchmarks; pwd -P`
+m1_layer="metal1"
+m2_layer="metal2"
+dff=("ms00f20" "d" "o" "ck")
+tie_hi=("vcc" "o")
+tie_lo=("vss" "o")
+declare -A bench_set=(
+#   [<bench-key>] = '<map-to-latch clock-signal>
+    [ac97_ctrl]="ms00f80 clk"
+    [aes_core]="ms00f80 clk" 
+    [crc32d16N]="ms00f80 clk"     
+    [des_perf]="ms00f80 clk"
+    [leon2]="ms00f80 clk"
+    [leon3mp]="ms00f80 clk"
+    [mgc_edit_dist]="ms00f80 clk"
+    [mgc_matrix_mult]="ms00f80 clk"
+    [netcard]="ms00f80 clk"
+    [pci_bridge32]="ms00f80 clk"
+    [simple_release]="ms00f80 clk"
+    [systemcaes]="ms00f80 clk"
+    [systemcdes]="ms00f80 clk"
+    [tv80]="ms00f80 clk"
+    [usb_funct]="ms00f80 clk"
+    [vga_lcd]="ms00f80 clk"
+    [wb_dma]="ms00f80 clk"
+    [cordic2_ispd]="ms00f80 clk"
+    [cordic_ispd]="ms00f80 clk"
+    [des_perf_ispd]="ms00f80 clk"
+    [edit_dist2_ispd]="ms00f80 clk"
+    [edit_dist_ispd]="ms00f80 clk"
+    [fft_ispd]="ms00f80 clk" 
+    [matrix_mult_ispd]="ms00f80 clk"
+    [usb_phy_ispd]="ms00f80 clk"
+    [b19_iccad]="ms00f80 clk"
+    [leon2_iccad]="ms00f80 clk"
+    [leon3mp_iccad]="ms00f80 clk"
+    [mgc_edit_dist_iccad]="ms00f80 clk"
+    [mgc_matrix_mult_iccad]="ms00f80 clk"
+    [netcard_iccad]="ms00f80 clk"
+    [vga_lcd_iccad]="ms00f80 clk"
+    [simple]="ms00f80 clk"
+)
+fi

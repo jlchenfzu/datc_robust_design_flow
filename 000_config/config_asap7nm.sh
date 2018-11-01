@@ -1,26 +1,27 @@
 #!/bin/bash
 
+is_asap7nm=true
+
 # Benchmarks
 bench_suite=(
-    "simple"
+    "usb_funct"
 )
 
 # Logic Synthesis
 synth_scenarios=(
-    "resyn2"
-    "resyn"
-    "timing"
+    "lazyman"
 )
 max_fanout=16
 
 # Floorplanning
-utilization=0.01
+utilization=0.5
 
 # Placement
 placers=(
-    "EhPlacer"
+    "NTUPlace3"
+    "ComPLx"
 )
-target_density=0.1
+target_density=0.8
 
 # Timer
 timers=(
@@ -35,15 +36,11 @@ sizers=(
 )
 
 # Global Routing
-global_routers=("NCTUgr")
-
-tile_size=50
-num_layer=4
+global_routers=(
+    "NCTUgr"
+)
+tile_size=30
+num_layer=6
 adjustment=10
 safety=90
-
-# Detailed Routing
-detail_routers=(
-    "NCTUdr"
-)
 

@@ -3,7 +3,7 @@
     Author         : Jinwook Jung
     Created on     : Sat 12 Aug 2017 10:26:29 PM KST
     Last modified  : 2017-08-12 22:26:29
-    Description    : 
+    Description    :
 '''
 
 from bookshelf_generator import *
@@ -28,9 +28,11 @@ def parse_cl():
     parser.add_argument('--lef', dest='src_lef', required=True)
     parser.add_argument('--clock', dest='clock_port')
     parser.add_argument('--sdc', dest='input_sdc')
+    parser.add_argument('--m1_layer', dest='m1_layer', default='metal1')
+    parser.add_argument('--m2_layer', dest='m2_layer', default='metal2')
 
-    parser.add_argument('--util', type=utilization, dest='utilization', 
-                        default=0.7, 
+    parser.add_argument('--util', type=utilization, dest='utilization',
+                        default=0.7,
                         help="Utilization (in 0.01, 0.99).")
 
     parser.add_argument('-o', dest='dest_name', help="Base name of output files")
@@ -76,9 +78,13 @@ if __name__ == '__main__':
     utilization = opt.utilization
     dest = opt.dest_name
 
+    m1_layer, m2_layer = opt.m1_layer, opt.m2_layer
+
     # Command line parameter checking
     print ("Input Verilog     :  %s" % (src_v))
     print ("Input LEF         :  %s" % (src_lef))
+    print ("Metal-1 Layer     :  %s" % (m1_layer))
+    print ("Metal-2 Layer     :  %s" % (m2_layer))
     print ("Utilization       :  %.1f %%" % (float(utilization)*100))
 
     if src_sdc is not None:
@@ -92,7 +98,7 @@ if __name__ == '__main__':
     print ("")
 
     bookshelf = Bookshelf(src_v, src_lef, clock_port, utilization)
-    bookshelf.initialize()
+    bookshelf.initialize(m1_layer, m2_layer)
     bookshelf.write_bookshelf_nodes(dest)
     bookshelf.write_bookshelf_nets(dest)
     bookshelf.write_bookshelf_wts(dest)

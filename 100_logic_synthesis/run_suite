@@ -51,7 +51,7 @@ do
             parms=${bench_set[$benchkey]}
             scenario=${scenario_set[$scenkey]}
             echo $0: Running scenario: $scenkey : $scenario;
-            ./run_abc_synthesis.sh $benchkey $parms $scenkey $scenario $max_fanout \
+            . ./run_abc_synthesis.sh $benchkey $parms $scenkey $scenario $max_fanout \
                 | tee reports/${benchkey}_${scenkey}.log.txt
         done
     else
