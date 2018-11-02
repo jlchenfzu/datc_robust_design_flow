@@ -48,7 +48,7 @@ def parse_bookshelf_nodes(nodes, node_dict):
             continue
 
         assert len(tokens) >= 3
-        name, w, h = tokens[0], int(tokens[1]), int(tokens[2])
+        name, w, h = tokens[0], float(tokens[1]), float(tokens[2])
 
         if (len(tokens) == 4):
             is_fixed = True
@@ -101,10 +101,10 @@ def parse_bookshelf_scl(scl):
                     break
 
                 elif tokens[0] == 'Coordinate':
-                    coordinate = int(tokens[2])
+                    coordinate = float(tokens[2])
 
                 elif tokens[0] == 'Height':
-                    height = int(tokens[2])
+                    height = float(tokens[2])
 
                 elif tokens[0] == 'Sitewidth':
                     site_width = float(tokens[2])
@@ -113,7 +113,7 @@ def parse_bookshelf_scl(scl):
                     site_spacing = float(tokens[2])
 
                 elif tokens[0] == 'SubrowOrigin':
-                    subrow_origin = int(tokens[2])
+                    subrow_origin = float(tokens[2])
                     num_sites = int(tokens[5])
 
             _urx = subrow_origin + num_sites*site_spacing

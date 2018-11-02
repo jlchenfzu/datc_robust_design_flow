@@ -1,22 +1,22 @@
 #!/bin/bash
 
-if test "$#" -ne 5; then
-    echo "Usage: ./run_new_fp.sh <bench> <netlist> <lef> <clock_port> <utilization>"
+if test "$#" -ne 7; then
+    echo "Usage: ./run_new_fp.sh <bench> <netlist> <lef> <m1_layer> <m2_layer> <clock_port> <utilization>"
     exit
 fi
 
 bench=${1}
 netlist=${2}
 lef=${3}
-clock_port=${4}
-utilization=${5}
-
-bench_dir="../bench"
+m1_layer=${4}
+m2_layer=${5}
+clock_port=${6}
+utilization=${7}
 
 echo "Netlist: ${netlist}"
 echo "--------------------------------------------------------------------------------"
 cmd="python3 ../utils/200_generate_bookshelf.py -i ${netlist}"
-cmd="$cmd --lef $lef --clock ${clock_port} --util $utilization"
+cmd="$cmd --lef $lef --m1_layer ${m1_layer} --m2_layer ${m2_layer} --clock ${clock_port} --util $utilization"
 cmd="$cmd -o ${bench}"
 
 echo $cmd; 

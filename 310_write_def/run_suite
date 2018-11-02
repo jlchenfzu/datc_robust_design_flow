@@ -23,7 +23,8 @@ do
             echo "Write DEF from ${placement}"
             echo "--------------------------------------------------------------------------------"
             cmd="python3 ../utils/310_write_def.py --pl ${placement}"
-            cmd="$cmd --lef ${lef} --def ${initial_def} --verilog ${final_verilog}"
+            cmd="$cmd --lef ${lef} --m1_layer ${m1_layer} --m2_layer ${m2_layer}"
+            cmd="$cmd --def ${initial_def} --verilog ${final_verilog}"
             cmd="$cmd --def_out ${out_def}"
 
             echo $cmd

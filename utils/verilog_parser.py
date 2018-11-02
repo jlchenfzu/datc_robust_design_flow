@@ -31,12 +31,19 @@ from __future__ import print_function
 import sys, math, operator
 from time import gmtime, strftime
 
-BLOCK_PREFIX = 'block_'
-TIE_HI = 'vcc'
-TIE_LO = 'vss'
-LATCH  = 'ms00f80'
-OUT_PIN_NAME = ('Q', 'Y')
+# FIXME: Get the output pin names from library
+OUT_PIN_NAME = ('Q', 'Y', 'L', 'H', 'o')
 
+class LibraryInfo:
+    latch = 'ms00f20'
+    latch_in = 'd'
+    latch_out = 'o'
+    latch_ck = 'ck'
+    tie_hi = 'vcc'
+    tie_lo = 'vss'
+    tie_hi_out = 'o'
+    tie_lo_out = 'o'
+    block_prefix = 'block_'
 
 class Vertex:
     def __init__(self, name, owner):
@@ -189,7 +196,11 @@ class Instance:
         else:
             output_pins = ', '.join(sorted(output_pin_string))
             input_pins = ', '.join(sorted(input_pin_string))
-            val += output_pins + ', ' + input_pins + ' );'
+
+            if output_pins != "":
+                val += output_pins + ', ' + input_pins + ' );'
+            else:
+                val += input_pins + ' );'
 
         return val
 
@@ -234,11 +245,12 @@ class Module(object):
         print("Number of instances: %d" % (len(self.instances)))
 
         big_blocks = [i for i in self.instances \
-                      if i.gate_type.startswith(BLOCK_PREFIX)]
+                      if i.gate_type.startswith(LibraryInfo.block_prefix)]
         if not len(big_blocks) == 0:
             print("Number of macros   : %d" % (len(big_blocks)))
 
-        tie_cells = [i for i in self.instances if i.gate_type in (TIE_LO, TIE_HI)]
+        tie_cells = [i for i in self.instances \
+                     if i.gate_type in (LibraryInfo.tie_lo, LibraryInfo.tie_hi)]
         if len(tie_cells) > 0:
             print("Number of tie cells: %d" % (len(tie_cells)))
 
@@ -267,12 +279,12 @@ class Module(object):
             identifier, value = a[0], a[1]
             inst_name = ("t%0*d" % (digit, i))
             if value == "1'b0":
-                tie = Instance(TIE_HI, inst_name)
+                tie = Instance(LibraryInfo.tie_hi, inst_name)
                 pin = Pin('o', 'output', identifier, tie)
                 tie.opins.append(pin)
                 self.instances.append(tie)
             else:
-                tie = Instance(TIE_LO, inst_name)
+                tie = Instance(LibraryInfo.tie_lo, inst_name)
                 pin = Pin('o', 'output', identifier, tie)
                 tie.opins.append(pin)
                 self.instances.append(tie)
@@ -409,10 +421,10 @@ class Module(object):
         for a in self.assigns:
             identifier, value = a[0], a[1]
             if value == "1'b1":
-                vertex = Vertex(identifier, TIE_HI)
+                vertex = Vertex(identifier, LibraryInfo.tie_hi)
 
             elif value == "1'b0":
-                vertex = Vertex(identifier, TIE_LO)
+                vertex = Vertex(identifier, LibraryInfo.tie_lo)
 
         # Create vertices and edges
         #   Vertices: {PIs} + {POs} + {Instances}
@@ -505,7 +517,7 @@ class Module(object):
         for edge in dangling:
             if edge.owner.__class__ == Wire:
                 # Owner is a wire
-                if edge.source.owner.gate_type == LATCH:
+                if edge.source.owner.gate_type == LibraryInfo.latch:
                     dangling_lo.append(edge.name)
 
                     # Remove the wire
@@ -641,11 +653,34 @@ if __name__ == '__main__':
         parser = argparse.ArgumentParser(description='A Verilog parser.')
         parser.add_argument('-i', dest='src', required=True)
         parser.add_argument('--clock_port', dest='clock', required=False)
+
+        parser.add_argument('--latch', dest='latch_cell', default='ms00f20')
+        parser.add_argument('--latch_in', dest='latch_in', default='d')
+        parser.add_argument('--latch_out', dest='latch_out', default='o')
+        parser.add_argument('--latch_ck', dest='latch_ck', default='ck')
+        parser.add_argument('--tie_hi', dest='tie_hi', default='vcc')
+        parser.add_argument('--tie_hi_out', dest='tie_hi_out', default='o')
+        parser.add_argument('--tie_lo', dest='tie_lo', default='vss')
+        parser.add_argument('--tie_lo_out', dest='tie_lo_out', default='o')
+
+        parser.add_argument('--block_prefix', dest='block_prefix', default="block_")
+
         parser.add_argument('-o', dest='dest', required=False, default="out.v")
         opt = parser.parse_args()
         return opt
 
     opt = parse_cl()
+
+    LibraryInfo.latch        = opt.latch_cell
+    LibraryInfo.latch_in     = opt.latch_in
+    LibraryInfo.latch_out    = opt.latch_out
+    LibraryInfo.latch_ck     = opt.latch_ck
+    LibraryInfo.tie_hi       = opt.tie_hi
+    LibraryInfo.tie_lo       = opt.tie_lo
+    LibraryInfo.tie_hi_out   = opt.tie_hi_out
+    LibraryInfo.tie_lo_out   = opt.tie_lo_out
+    LibraryInfo.block_prefix = opt.block_prefix
+
     module = Module(opt.clock)
     module.read_verilog(opt.src)
     module.construct_circuit_graph()

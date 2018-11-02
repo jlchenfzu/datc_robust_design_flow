@@ -18,6 +18,7 @@ do
         echo "--------------------------------------------------------------------------------"
         cmd="python3 ../utils/210_convert_bookshelf_to_def.py"
         cmd="$cmd --aux ${aux} --lef ${lef} --verilog ${final_verilog}"
+        cmd="$cmd --m1_layer ${m1_layer} --m2_layer ${m2_layer}"
         cmd="$cmd --out_def ${out_def}"
 
         echo $cmd

@@ -5,7 +5,7 @@ then
 bench_dir=`cd ../benchmarks/asap7nm; pwd -P`
 m1_layer="M1"
 m2_layer="M2"
-dff=("DFFHQx4_ASAP7_75t_R" "D" "Q", "CK")
+dff=("DFFHQx4_ASAP7_75t_R" "D" "Q", "CLK")
 tie_hi=("TIEHIx1_ASAP7_75t_R" "H") 
 tie_lo=("TIELOx1_ASAP7_75t_R" "L")
 declare -A bench_set=(

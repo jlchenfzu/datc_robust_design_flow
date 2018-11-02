@@ -46,14 +46,14 @@ def parse_pl(pl_file_name):
     return pl_dict
 
 
-def write_def(dest_def, src_lef, src_def, src_v, src_pl):
+def write_def(dest_def, src_lef, m1_layer, m2_layer, src_def, src_v, src_pl):
 
     print ("Parsing LEF: %s" % (src_lef))
     the_lef = lef_parser.Lef()
     the_lef.read_lef(src_lef)
     the_lef.print_stats()
-    the_lef.m1_layer_name = 'metal1'
-    the_lef.m2_layer_name = 'metal2'
+    the_lef.m1_layer_name = m1_layer
+    the_lef.m2_layer_name = m2_layer
 
     width_multiplier  = the_lef.metal_layer_dict[the_lef.m2_layer_name]
     height_multiplier = the_lef.metal_layer_dict[the_lef.m1_layer_name]
@@ -109,6 +109,8 @@ if __name__ == '__main__':
         import argparse
         parser = argparse.ArgumentParser(description='')
         parser.add_argument('--lef', dest='src_lef', required=True)
+        parser.add_argument('--m1_layer', dest='m1_layer', default='metal1')
+        parser.add_argument('--m2_layer', dest='m2_layer', default='metal2')
         parser.add_argument('--def', dest='src_def', required=True)
         parser.add_argument('--verilog', dest='src_v', required=True)
         parser.add_argument('--pl', dest='src_pl')
@@ -118,12 +120,15 @@ if __name__ == '__main__':
 
     opt = parse_cl()
 
-    print ("LEF         : " + opt.src_lef)
-    print ("DEF         : " + opt.src_def)
-    print ("Netlist     : " + opt.src_v)
-    print ("Bookshelf pl: " + opt.src_pl)
-    print ("Output DEF  : " + opt.dest_def)
+    print ("LEF           : " + opt.src_lef)
+    print ("Metal-1 Layer :  %s" % (opt.m1_layer))
+    print ("Metal-2 Layer :  %s" % (opt.m2_layer))
+    print ("DEF           : " + opt.src_def)
+    print ("Netlist       : " + opt.src_v)
+    print ("Bookshelf pl  : " + opt.src_pl)
+    print ("Output DEF    : " + opt.dest_def)
     print ("")
 
-    write_def(opt.dest_def, opt.src_lef, opt.src_def, opt.src_v, opt.src_pl)
+    write_def(opt.dest_def, opt.src_lef, opt.m1_layer, opt.m2_layer, 
+              opt.src_def, opt.src_v, opt.src_pl)
 

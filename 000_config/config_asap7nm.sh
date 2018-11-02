@@ -18,8 +18,7 @@ utilization=0.5
 
 # Placement
 placers=(
-    "NTUPlace3"
-    "ComPLx"
+    "Capo"
 )
 target_density=0.8
 

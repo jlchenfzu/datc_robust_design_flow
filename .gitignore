@@ -4,6 +4,7 @@
 bin/unlicensed/placer
 bin/unlicensed/router
 bin/unlicensed/sizer
+bin/unlicensed/unlicensed.tar.gz
 bin/abc_src/src
 bin/abc_src/lib
 !bin/README

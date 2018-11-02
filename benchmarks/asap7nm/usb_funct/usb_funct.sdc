@@ -1,0 +1,1 @@
+../../utils/tau_benchmarks/usb_funct/usb_funct.sdc

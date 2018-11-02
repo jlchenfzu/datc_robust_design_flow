@@ -42,13 +42,14 @@ do
                 echo "Log: ${bench}.log.txt"
                 echo "Placement file: $bookshelf_pl"
 
-                perl ../utils/500_gen_routing_benchmark.pl \
-                    ${bookshelf_dir}/${bench}.nodes \
-                    ${bookshelf_pl} \
-                    ${bookshelf_dir}/${bench}.nets \
-                    ${bookshelf_dir}/${bench}.scl ${bench}.gr \
-                    $tile_size $adjustment $safety $mode $num_layer \
-                    | tee ${bench}.log.txt
+                cmd="perl ../utils/500_gen_routing_benchmark.pl"
+                cmd="$cmd ${bookshelf_dir}/${bench}.nodes"
+                cmd="$cmd ${bookshelf_pl}"
+                cmd="$cmd ${bookshelf_dir}/${bench}.nets"
+                cmd="$cmd ${bookshelf_dir}/${bench}.scl ${bench}.gr"
+                cmd="$cmd $tile_size $adjustment $safety $mode $num_layer"
+                echo $cmd; $cmd
+                $cmd | tee ${bench}.log.txt
 
                 # generarte bookshelf .route file
                 cmd="../utils/500_gen_bookshelf_route.tcl ${bench}.gr ${bookshelf_dir}/${bench}.nodes"

@@ -83,14 +83,18 @@ class Bookshelf:
             if g.gate_type in std_cells_set:
                 lef_macro = std_cells[g.gate_type]
 
-                width_in_bs  = ceil(lef_macro.width / self.width_divider)
-                height_in_bs = ceil(lef_macro.height / self.height_divider)
+                # width_in_bs  = ceil(lef_macro.width / self.width_divider)
+                # height_in_bs = ceil(lef_macro.height / self.height_divider)
+                width_in_bs  = lef_macro.width / self.width_divider
+                height_in_bs = lef_macro.height / self.height_divider
 
                 # total_width_in_bs += width_in_bs
                 self.total_area_in_bs += width_in_bs * height_in_bs
 
-                f.write("%-40s %15d %15d\n" % \
-                        (g.name, int(width_in_bs), int(height_in_bs)))
+#                f.write("%-40s %15d %15d\n" % \
+#                        (g.name, int(width_in_bs), int(height_in_bs)))
+                f.write("%-40s %15f %15f\n" % \
+                        (g.name, width_in_bs, height_in_bs))
 
             else:
                 sys.stderr.write("Cannot find macro definition of %s. \n" % (g))
@@ -100,9 +104,13 @@ class Bookshelf:
         input_names = [_ for _ in self.verilog.input_dict.keys()]
         output_names = [_ for _ in self.verilog.output_dict.keys()]
         for terminal in input_names + output_names:
-            port_width  = int(ceil(self.site_width  / self.width_divider))
-            port_height = int(ceil(self.site_height / self.height_divider))
-            f.write("%-40s %15d %15d %15s\n" \
+#            port_width  = int(ceil(self.site_width  / self.width_divider))
+#            port_height = int(ceil(self.site_height / self.height_divider))
+#            f.write("%-40s %15d %15d %15s\n" \
+#                          % (terminal, port_width, port_height, 'terminal'))
+            port_width  = self.site_width  / self.width_divider
+            port_height = self.site_height / self.height_divider
+            f.write("%-40s %15f %15f %15s\n" \
                           % (terminal, port_width, port_height, 'terminal'))
         f.close()
 
@@ -205,14 +213,16 @@ class Bookshelf:
         """
         Create bookshelf scl file with a given utilization
         """
-        site_width_in_bs  = int(ceil(self.lef.site_width / self.width_divider))
-        site_height_in_bs = int(ceil(self.lef.site_height / self.height_divider))
+#        site_width_in_bs  = int(ceil(self.lef.site_width / self.width_divider))
+#        site_height_in_bs = int(ceil(self.lef.site_height / self.height_divider))
+        site_width_in_bs  = self.lef.site_width / self.width_divider
+        site_height_in_bs = self.lef.site_height / self.height_divider
         site_spacing = site_width_in_bs
 
         placement_area = self.total_area_in_bs / self.util
         x_length = ceil(placement_area**0.5)
         y_length = ceil(x_length / site_height_in_bs) * site_height_in_bs
-        num_row = ceil(x_length / site_height_in_bs)
+        num_row = int(ceil(x_length / site_height_in_bs))
 
         self.die_width, self.die_height = x_length, y_length
 
@@ -226,10 +236,10 @@ class Bookshelf:
 
         for i in range(num_row):
             f.write("CoreRow Horizontal\n")
-            f.write("    Coordinate     : %d\n" % (i*site_height_in_bs))
-            f.write("    Height         : %d\n" % (site_height_in_bs))
-            f.write("    Sitewidth      : %d\n" % (site_width_in_bs))
-            f.write("    Sitespacing    : %d\n" % (site_width_in_bs))
+            f.write("    Coordinate     : %f\n" % (i*site_height_in_bs))
+            f.write("    Height         : %f\n" % (site_height_in_bs))
+            f.write("    Sitewidth      : %f\n" % (site_width_in_bs))
+            f.write("    Sitespacing    : %f\n" % (site_width_in_bs))
             f.write("    Siteorient     : N\n")
             f.write("    Sitesymmetry   : Y\n")
             f.write("    SubrowOrigin   : 0    ")
@@ -285,7 +295,7 @@ class Bookshelf:
                 if 'terminal' in tokens[1:]:
                     terminal_list.append(node_name)
                 else:
-                    f.write("%s\t%d\t%d\t: N\n" % (node_name, 0, 0))
+                    f.write("%s\t%f\t%f\t: N\n" % (node_name, 0, 0))
 
         try:
             assert len(terminal_list) == num_terminals
@@ -313,9 +323,9 @@ class Bookshelf:
 
         coords = south + east + north + west
         for terminal, p in zip(terminal_list, coords):
-            x = int(round(p[0]/site_width_in_bs)) * site_width_in_bs
-            y = int(round(p[1]/site_height_in_bs)) * site_height_in_bs
-            f.write("%s\t%d\t%d\t: N\n" % (terminal, x, y))
+            x = round(p[0]/site_width_in_bs) * site_width_in_bs
+            y = round(p[1]/site_height_in_bs) * site_height_in_bs
+            f.write("%s\t%f\t%f\t: N\n" % (terminal, x, y))
 
         f.close()
 

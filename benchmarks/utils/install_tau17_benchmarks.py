@@ -167,15 +167,18 @@ def remap_benchmarks(benchmarks):
         cmd += "read {0}; read -m {1}; unmap;".format(src_lib, blif)
         cmd += " read {0}; map; write_verilog {1};".format(open_design_flow_lib, verilog)
         cmd += " quit\""
+        print("Running ABC: {}".format(cmd))
         run_shell_cmd(cmd)
 
-        # print("Map latches.")
+        print("Mapping latches.")
         map_latches(verilog)
 
-        # print("Create SDC.")
+        print("Creating SDC.")
         timing = "{0}/{0}.timing".format(bench_name)
         sdc = "{0}/{0}.sdc".format(bench_name)
         create_sdc(bench_name, timing, sdc)
+
+        print("Done...\n")
 
 
 def remove_dangling_wires(benchmarks):

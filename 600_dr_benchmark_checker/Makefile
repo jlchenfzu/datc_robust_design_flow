@@ -15,4 +15,4 @@ example:
 	./run_suite example
 
 clean:
-	rm -rf global_route/*
+	rm -rf lefdef/*

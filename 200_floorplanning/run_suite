@@ -3,7 +3,6 @@
 
 source ../000_config/setup.sh $1
 
-
 echo ""
 echo "================================================================================"
 echo "           ______                   __               _          "
@@ -16,6 +15,8 @@ echo ""
 
 for bench in "${these_benches[@]}"
 do
+    parms=(${bench_set[$benchkey]})
+    clock_name=${parms[1]}
     lef="${bench_dir}/${bench}/${bench}.lef"
 
 	for scenario in "${these_scenarios[@]}"
@@ -25,7 +26,7 @@ do
         echo "Verilog netlist: ${final_verilog}"
         echo "--------------------------------------------------------------------------------"
         cmd="./run_fp.sh ${bench}"
-        cmd="$cmd ${final_verilog} ${lef} ${clock_name} ${utilization}"
+        cmd="$cmd ${final_verilog} ${lef} ${m1_layer} ${m2_layer} ${clock_name} ${utilization}"
         echo $cmd
         $cmd | tee ${bench}.log.txt
 

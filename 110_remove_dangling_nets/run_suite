@@ -19,6 +19,9 @@ do
         echo "--------------------------------------------------------------------------------"
         cmd="python3 ../utils/verilog_parser.py -i ${synth_result}"
         cmd="$cmd -o ${final_verilog} --clock_port $clock_name"
+        cmd="$cmd --latch ${dff[0]} --latch_in ${dff[1]} --latch_out ${dff[2]} --latch_ck ${dff[3]}"
+        cmd="$cmd --tie_hi ${tie_hi[0]} --tie_hi_out ${tie_hi[1]}"
+        cmd="$cmd --tie_lo ${tie_lo[0]} --tie_lo_out ${tie_lo[1]}"
         echo $cmd
         $cmd | tee ${bench}.log.txt
 

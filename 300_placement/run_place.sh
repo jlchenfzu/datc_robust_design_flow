@@ -11,7 +11,7 @@ if test "$#" -ne 5; then
     echo "Usage: ./run_place.sh <bench> <bookshelf_dir> <placer> <target_density> <out_dir>"
     echo "Available placers: [EhPlacer | ComPLx | NTUPlace3 | mPL6 | mPL5 | Capo | FastPlace-GP]"
     exit
-elif contains "EhPlacer ComPLx NTUPlace3 mPL6 mPL5 Capo FastPlaceGP" $3 = 0; then
+elif contains "EhPlacer ComPLx NTUPlace3 mPL6 mPL5 Capo FastPlace-GP" $3 = 0; then
     echo "Available placers: [EhPlacer | ComPLx | NTUPlace3 | mPL6 | mPL5 | Capo | FastPlace-GP]"
     exit
 fi
@@ -105,9 +105,9 @@ elif test "$placer" = "ComPLx"; then
 
 
 #------------------------------------------------------------------------------
-# FastPlaceGP 
+# FastPlace-GP 
 #------------------------------------------------------------------------------
-elif test "$placer" = "FastPlaceGP"; then
+elif test "$placer" = "FastPlace-GP"; then
 
     #./FastPlace3.0_Linux32_GP [options] <benchmark_dir> <aux_file> <output_dir>
     cmd="${bin_dir}/FastPlace3.0_Linux32_GP -target_density ${target_util}"

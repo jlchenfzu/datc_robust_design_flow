@@ -33,10 +33,11 @@ class Node:
 
 class NodePin(Node):
     """ A bookshelf node that is a pin (terminal). """
-    def __init__(self, name, direction):
+    def __init__(self, name, direction, layer):
         super().__init__(name)
         self.is_terminal = True
         self.direction = direction
+        self.layer = layer
 
     def get_def_string(self, x_scaler, y_scaler):
         x = self.x * x_scaler
@@ -46,8 +47,8 @@ class NodePin(Node):
         "  - %s + NET %s\n" \
         "    + DIRECTION %s\n" \
         "    + FIXED ( %d %d ) %s\n" \
-        "        + LAYER metal3 ( 0 0 ) ( 380 380 ) ;" % \
-        (self.name, self.name, self.direction, x, y, self.orient)
+        "        + LAYER %s ( 0 0 ) ( 380 380 ) ;" % \
+        (self.name, self.name, self.direction, x, y, self.orient, self.layer)
 
 
 class NodeComponent(Node):
@@ -121,19 +122,25 @@ class BookshelfToDEF:
     def dbu_per_micron(self):
         return self.lef.units_distance_microns
 
-    def initialize(self):
+    def initialize(self, m1_layer, m2_layer):
         """ Initialize internal data structure of Verilog and LEF. """
-        def generate_node_dict(verilog, node_dict):
+        def generate_node_dict(verilog, node_dict, layer):
             """ Build up a name-to-type dictionary. """
             for i in verilog.input_dict.values():
-                node_dict[i.name] = NodePin(i.name, 'INPUT')
+                node_dict[i.name] = NodePin(i.name, 'INPUT', layer)
             for o in verilog.output_dict.values():
-                node_dict[o.name] = NodePin(o.name, 'OUTPUT')
+                node_dict[o.name] = NodePin(o.name, 'OUTPUT', layer)
             for i in verilog.instances:
                 node_dict[i.name] = NodeComponent(i.name, i.gate_type)
 
         def generate_nets(verilog, nets):
-            for w in verilog.wire_dict.values():
+            for k,w in verilog.wire_dict.items():
+                if w is None:
+                    print(k + " is None...")
+                    raise SystemExit(-1)
+                if w.source is None:
+                    print(k + "'s source is None...")
+                    raise SystemExit(-1)
                 try:
                     pins = [(w.source.owner.name, w.source.name)]
                 except AttributeError:
@@ -147,6 +154,13 @@ class BookshelfToDEF:
 
                 nets.append(def_parser.DefNet(w.name, pins))
 
+        print ("Parsing LEF: %s" % (self.src_lef))
+        self.lef = lef_parser.Lef()
+        self.lef.read_lef(self.src_lef)
+        self.lef.print_stats()
+        self.lef.m1_layer_name = m1_layer
+        self.lef.m2_layer_name = m2_layer
+
         print ("Parsing verilog: %s" % (self.src_v))
         self.verilog = verilog_parser.Module()
         self.verilog.read_verilog(self.src_v)
@@ -154,15 +168,8 @@ class BookshelfToDEF:
         self.verilog.print_stats()
         self.verilog.check_dangling_nets()
 
-        generate_node_dict(self.verilog, self.node_dict)
+        generate_node_dict(self.verilog, self.node_dict, self.lef.m2_layer_name)
         generate_nets(self.verilog, self.nets)
-
-        print ("Parsing LEF: %s" % (self.src_lef))
-        self.lef = lef_parser.Lef()
-        self.lef.read_lef(self.src_lef)
-        self.lef.print_stats()
-        self.lef.m1_layer_name = 'metal1'
-        self.lef.m2_layer_name = 'metal2'
 
     def convert_bookshelf_to_def(self, out_def):
         """ Convert given bookshelf into a def. """
@@ -360,19 +367,22 @@ if __name__ == '__main__':
         parser = argparse.ArgumentParser(description='')
         parser.add_argument('--aux', dest='src_aux', required=True)
         parser.add_argument('--lef', dest='src_lef', required=True)
+        parser.add_argument('--m1_layer', dest='m1_layer', default='metal1')
+        parser.add_argument('--m2_layer', dest='m2_layer', default='metal2')
         parser.add_argument('--verilog', dest='src_v', required=True)
         parser.add_argument('--out_def', dest='out_def', default='out.def')
         opt = parser.parse_args()
         return opt
 
     opt = parse_cl()
-    print ("Bookshelf  : " + opt.src_aux)
-    print ("LEF        : " + opt.src_lef)
-    print ("Netlist    : " + opt.src_v)
-    print ("Output DEF : " + opt.out_def)
+    print ("Bookshelf    : " + opt.src_aux)
+    print ("LEF          : " + opt.src_lef)
+    print ("M1/M2 layers : {}/{}".format(opt.m1_layer, opt.m2_layer))
+    print ("Netlist      : " + opt.src_v)
+    print ("Output DEF   : " + opt.out_def)
     print ("")
 
     converter = BookshelfToDEF(opt.src_lef, opt.src_v, opt.src_aux)
-    converter.initialize()
+    converter.initialize(opt.m1_layer, opt.m2_layer)
     converter.convert_bookshelf_to_def(opt.out_def)
 
